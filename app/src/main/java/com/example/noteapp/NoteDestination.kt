@@ -1,8 +1,7 @@
 package com.example.noteapp
 
-import androidx.compose.runtime.Composable
-import com.example.noteapp.ui.screens.all_notes_screen.AllNotesScreen
-import com.example.noteapp.ui.screens.create_note_screen.CreateNoteScreen
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
 
 /**
  * Contract for information needed on every Note navigation destination
@@ -20,4 +19,12 @@ object AllNotes: NoteDestinations {
 
 object CreateNote: NoteDestinations {
     override val route = "create"
+}
+
+object EditNote: NoteDestinations {
+    override val route = "edit"
+    const val noteIdArg = "note_id"
+    val arguments = listOf(
+        navArgument(noteIdArg) { type = NavType.IntType }
+    )
 }

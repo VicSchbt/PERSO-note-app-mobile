@@ -1,4 +1,4 @@
-package com.example.noteapp.ui.screens.create_note_screen
+package com.example.noteapp.ui.screens.editor
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -13,7 +13,9 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -32,13 +34,14 @@ import com.example.noteapp.ui.theme.Neutral800
 import com.example.noteapp.ui.theme.Neutral950
 
 @Composable
-fun CreateNoteScreen(
-    viewModel: CreateNoteScreenViewModel,
+fun EditorScreen(
+    viewModel: EditorViewModel,
     onReturnClick: () -> Unit
 ) {
+    val note = viewModel.note.collectAsState()
 
-    var title by remember { mutableStateOf("") }
-    var text by remember { mutableStateOf("") }
+    var title by remember(note.value?.id) { mutableStateOf(note.value?.title ?: "") }
+    var text by remember(note.value?.id) { mutableStateOf(note.value?.text ?: "") }
 
     CreateNoteContent(
         title = title,
