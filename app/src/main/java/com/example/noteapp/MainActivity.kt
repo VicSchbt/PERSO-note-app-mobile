@@ -4,6 +4,9 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -23,6 +26,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -36,6 +40,8 @@ import com.example.noteapp.data.database.NoteDatabase
 import com.example.noteapp.data.repository.NoteRepository
 import com.example.noteapp.ui.screens.all_notes_screen.AllNotesScreen
 import com.example.noteapp.ui.screens.all_notes_screen.AllNotesScreenViewModel
+import com.example.noteapp.ui.screens.archives.ArchivesScreen
+import com.example.noteapp.ui.screens.archives.ArchivesViewModel
 import com.example.noteapp.ui.screens.editor.EditorScreen
 import com.example.noteapp.ui.screens.editor.EditorViewModel
 import com.example.noteapp.ui.theme.Blue50
@@ -55,6 +61,7 @@ class MainActivity : ComponentActivity() {
         val noteRepository = NoteRepository(noteDao)
         val editorViewModel = EditorViewModel(noteRepository)
         val allNotesViewModel = AllNotesScreenViewModel(noteRepository)
+        val archivesViewModel = ArchivesViewModel(noteRepository)
 
         setContent {
             NoteAppTheme {
@@ -74,15 +81,15 @@ class MainActivity : ComponentActivity() {
                         )
                     },
                     bottomBar = { NavigationBottomBar(
-                        goToAllNotes = {navController.navigateSingleTopTo("all")},
-                        goToSearch = {navController.navigateSingleTopTo("create")},
-                        goToArchives = {},
+                        goToAllNotes = {navController.navigateSingleTopTo(AllNotes.route)},
+                        goToSearch = {},
+                        goToArchives = {navController.navigateSingleTopTo(ArchivedNotes.route)},
                         goToTag = {},
                         goToSettings = {}
                     ) },
                     floatingActionButton = {
                         FloatingActionButton(
-                            onClick = { navController.navigateSingleTopTo("create") },
+                            onClick = { navController.navigateSingleTopTo(CreateNote.route) },
                             containerColor = Blue500,
                             contentColor = Neutral0
                         ) {
@@ -96,7 +103,7 @@ class MainActivity : ComponentActivity() {
                     NavHost(
                         navController = navController,
                         startDestination = AllNotes.route,
-                        modifier = Modifier.padding(innerPadding)
+                        modifier = Modifier.padding(innerPadding),
                     ) {
                         composable(route = AllNotes.route) {
                             AllNotesScreen(
@@ -119,16 +126,21 @@ class MainActivity : ComponentActivity() {
                             arguments = EditNote.arguments
                         ) {entry ->
                             val noteId = entry.arguments?.getInt(EditNote.noteIdArg) ?: return@composable
-                                LaunchedEffect(noteId) {
-                                    editorViewModel.loadNote(noteId)
-                                }
+                            LaunchedEffect(noteId) {
+                                editorViewModel.loadNote(noteId)
+                            }
 
                             EditorScreen(
                                 editorViewModel,
                                 onReturnClick = { navController.popBackStack() }
                             )
                         }
-
+                        composable(route = ArchivedNotes.route) {
+                            ArchivesScreen(
+                                archivesViewModel,
+                                onNoteClick = { noteId: Int ->  navController.navigateSingleTopTo("${EditNote.route}/$noteId")}
+                            )
+                        }
                     }
 
                 }
@@ -166,7 +178,7 @@ fun NavigationBottomBar(
 
             IconButton(
                 onClick = {
-                    item.onClick
+                    item.onClick()
                     activeItemId = item.id
                 },
                 modifier = Modifier.weight(1f),

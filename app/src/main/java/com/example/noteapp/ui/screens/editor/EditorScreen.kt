@@ -5,9 +5,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
@@ -15,7 +17,6 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -42,6 +43,7 @@ fun EditorScreen(
 
     var title by remember(note.value?.id) { mutableStateOf(note.value?.title ?: "") }
     var text by remember(note.value?.id) { mutableStateOf(note.value?.text ?: "") }
+    var isArchived by remember(note.value?.id) { mutableStateOf(note.value?.isArchived ?: false) }
 
     CreateNoteContent(
         title = title,
@@ -49,7 +51,12 @@ fun EditorScreen(
         text = text,
         onTextChange = { text = it },
         onReturnClick = { onReturnClick() },
-        onSaveClick = { viewModel.saveNote(title, text) }
+        onSaveClick = { viewModel.saveNote(title, text, isArchived) },
+        isArchived,
+        toggleIsArchived = {
+            isArchived = !isArchived
+            if (note.value != null) viewModel.toggleNoteArchive(note.value!!.id)
+        }
     )
 }
 
@@ -60,7 +67,9 @@ fun CreateNoteContent(
     text: String,
     onTextChange: (String) -> Unit,
     onReturnClick: () -> Unit,
-    onSaveClick: () -> Unit
+    onSaveClick: () -> Unit,
+    isArchived: Boolean,
+    toggleIsArchived: () -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxWidth()
@@ -69,7 +78,9 @@ fun CreateNoteContent(
             onReturnClick = { onReturnClick() },
             onCancelClick = { onReturnClick() },
             isSaveEnabled = (title != ""),
-            onSaveClick = { onSaveClick() }
+            onSaveClick = { onSaveClick() },
+            isArchived,
+            toggleIsArchived
         )
 
         HorizontalDivider(
@@ -130,6 +141,8 @@ fun EditTopBar(
     onCancelClick: () -> Unit,
     isSaveEnabled: Boolean,
     onSaveClick: () -> Unit,
+    isArchived: Boolean,
+    toggleIsArchived: () -> Unit
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -156,6 +169,16 @@ fun EditTopBar(
         }
 
         Row {
+            IconButton(
+                onClick = {toggleIsArchived()},
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.icon_archive),
+                    contentDescription = "Archive current note",
+                    tint = if (isArchived) Blue500 else Neutral600,
+                    modifier = Modifier.size(18.dp)
+                )
+            }
             TextButton(
                 onClick = { onCancelClick() },
                 colors = ButtonDefaults.textButtonColors(
@@ -212,5 +235,7 @@ fun CreateNoteScreenPreview() {
                 "TODO: Benchmark current application and identify bottlenecks",
         {},
         {},
+        {},
+        false,
         {})
 }

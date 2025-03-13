@@ -7,7 +7,13 @@ import kotlinx.coroutines.flow.Flow
 
 class NoteRepository(private val noteDao: NoteDao) {
 
-    fun getAllNotes(): Flow<List<Note>> = noteDao.getAllNotes()
+    fun getAllNotes(): Flow<List<Note>> {
+        return noteDao.getAllNotes()
+    }
+
+    fun getArchivedNotes(): Flow<List<Note>> {
+        return noteDao.getArchivedNotes()
+    }
 
     suspend fun saveNote(note: Note) {
         noteDao.addNote(note)
@@ -15,6 +21,10 @@ class NoteRepository(private val noteDao: NoteDao) {
 
     suspend fun getNote(noteId: Int): Note? {
         return noteDao.getNote(noteId)
+    }
+
+    suspend fun toggleArchive(noteId: Int) {
+        noteDao.toggleArchive(noteId)
     }
 
 }

@@ -13,13 +13,13 @@ class EditorViewModel(private val repository: NoteRepository): ViewModel() {
     private val _note = MutableStateFlow<Note?>(null)
     val note: StateFlow<Note?> = _note.asStateFlow()
 
-    fun saveNote(title: String, text: String) = viewModelScope.launch {
+    fun saveNote(title: String, text: String, isArchived: Boolean) = viewModelScope.launch {
         val currentId = note.value?.id
         repository.saveNote(
             if (currentId != null) {
-                Note(id = currentId, title = title, text = text)
+                Note(id = currentId, title = title, text = text, isArchived = isArchived)
             } else {
-                Note(title = title, text = text)
+                Note(title = title, text = text, isArchived = isArchived)
             }
 
         )
@@ -34,5 +34,13 @@ class EditorViewModel(private val repository: NoteRepository): ViewModel() {
 
     fun resetNote() {
         _note.value = null
+    }
+
+    fun toggleNoteArchive(noteId: Int) {
+        viewModelScope.launch {
+            if (note.value != null) {
+                repository.toggleArchive(noteId)
+            }
+        }
     }
 }

@@ -28,3 +28,7 @@ object EditNote: NoteDestinations {
         navArgument(noteIdArg) { type = NavType.IntType }
     )
 }
+
+object ArchivedNotes: NoteDestinations {
+    override val route = "archives"
+}
