@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.util.Date
 
 class EditorViewModel(private val repository: NoteRepository): ViewModel() {
     private val _note = MutableStateFlow<Note?>(null)
@@ -17,9 +18,9 @@ class EditorViewModel(private val repository: NoteRepository): ViewModel() {
         val currentId = note.value?.id
         repository.saveNote(
             if (currentId != null) {
-                Note(id = currentId, title = title, text = text, isArchived = isArchived)
+                Note(id = currentId, title = title, text = text, isArchived = isArchived, lastEdited = Date())
             } else {
-                Note(title = title, text = text, isArchived = isArchived)
+                Note(title = title, text = text, isArchived = isArchived, lastEdited = Date())
             }
 
         )

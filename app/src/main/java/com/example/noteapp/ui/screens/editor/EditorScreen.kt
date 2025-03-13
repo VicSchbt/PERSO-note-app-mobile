@@ -17,6 +17,7 @@ import com.example.noteapp.config.ModalConfig
 import com.example.noteapp.ui.composables.ConfirmationModal
 import com.example.noteapp.ui.composables.EditForm
 import com.example.noteapp.ui.composables.EditTopBar
+import java.util.Date
 
 @Composable
 fun EditorScreen(
@@ -28,6 +29,7 @@ fun EditorScreen(
     var title by remember(note.value?.id) { mutableStateOf(note.value?.title ?: "") }
     var text by remember(note.value?.id) { mutableStateOf(note.value?.text ?: "") }
     var isArchived by remember(note.value?.id) { mutableStateOf(note.value?.isArchived ?: false) }
+    var lastEdited by remember(note.value?.id) { mutableStateOf(note.value?.lastEdited) }
 
     CreateNoteContent(
         isEditMode = note.value != null,
@@ -45,7 +47,8 @@ fun EditorScreen(
         onDeleteClick = {
             viewModel.deleteNote(note.value!!)
             onReturnClick()
-        }
+        },
+        lastEdited
     )
 }
 
@@ -60,7 +63,8 @@ fun CreateNoteContent(
     onSaveClick: () -> Unit,
     isArchived: Boolean,
     toggleIsArchived: () -> Unit,
-    onDeleteClick: () -> Unit
+    onDeleteClick: () -> Unit,
+    lastEdited: Date?
 ) {
     var openDeleteDialog by remember { mutableStateOf(false) }
     var openArchiveDialog by remember { mutableStateOf(false) }
@@ -91,7 +95,7 @@ fun CreateNoteContent(
             )
         )
 
-        EditForm(title, onTitleChange, text, onTextChange)
+        EditForm(title, onTitleChange, text, onTextChange, lastEdited)
     }
     if (openDeleteDialog) {
         ConfirmationModal(
@@ -147,5 +151,6 @@ fun CreateNoteScreenPreview() {
         {},
         false,
         {},
-        {})
+        {},
+        Date())
 }

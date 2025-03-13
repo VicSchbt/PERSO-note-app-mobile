@@ -23,6 +23,7 @@ import com.example.noteapp.ui.theme.Neutral100
 import com.example.noteapp.ui.theme.Neutral200
 import com.example.noteapp.ui.theme.Neutral950
 import com.example.noteapp.ui.theme.NoteAppTheme
+import java.util.Date
 
 @Composable
 fun AllNotesScreen(viewModel: AllNotesScreenViewModel, onNoteClick: (noteId: Int) -> Unit) {
@@ -77,9 +78,9 @@ private fun EmptyState() {
 fun AllNotesScreenPreview() {
     NoteAppTheme {
         val sampleNotes = listOf(
-            Note(id = 1, title = "Buy groceries", text = "Milk, Eggs, Bread"),
-            Note(id = 2, title = "Workout", text = "Go for a run"),
-            Note(id = 3, title = "Study", text = "Learn Compose basics")
+            Note(id = 1, title = "Buy groceries", text = "Milk, Eggs, Bread", false, Date()),
+            Note(id = 2, title = "Workout", text = "Go for a run", false, Date()),
+            Note(id = 3, title = "Study", text = "Learn Compose basics", false, Date())
         )
 
         AllNotesScreenContent(

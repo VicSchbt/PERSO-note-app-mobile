@@ -16,6 +16,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.noteapp.data.model.Note
 import com.example.noteapp.ui.theme.Neutral200
+import com.example.noteapp.ui.theme.Neutral700
+import com.example.noteapp.utils.formatToSimpleDate
 
 @Composable
 fun NoteList(notes: List<Note>, onNoteClick: (Int) -> Unit) {
@@ -32,6 +34,13 @@ fun NoteList(notes: List<Note>, onNoteClick: (Int) -> Unit) {
                     text = note.title,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = note.lastEdited.formatToSimpleDate(),
+                    color = Neutral700,
+                    fontSize = 12.sp,
+                    lineHeight = 14.sp,
+                    fontWeight = FontWeight.Normal
                 )
             }
 
