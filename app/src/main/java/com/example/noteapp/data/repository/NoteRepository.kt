@@ -1,6 +1,5 @@
 package com.example.noteapp.data.repository
 
-import androidx.lifecycle.LiveData
 import com.example.noteapp.data.dao.NoteDao
 import com.example.noteapp.data.model.Note
 import kotlinx.coroutines.flow.Flow

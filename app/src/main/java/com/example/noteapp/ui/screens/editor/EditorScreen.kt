@@ -29,7 +29,7 @@ fun EditorScreen(
     var title by remember(note.value?.id) { mutableStateOf(note.value?.title ?: "") }
     var text by remember(note.value?.id) { mutableStateOf(note.value?.text ?: "") }
     var isArchived by remember(note.value?.id) { mutableStateOf(note.value?.isArchived ?: false) }
-    var lastEdited by remember(note.value?.id) { mutableStateOf(note.value?.lastEdited) }
+    val lastEdited by remember(note.value?.id) { mutableStateOf(note.value?.lastEdited) }
 
     CreateNoteContent(
         isEditMode = note.value != null,
@@ -152,5 +152,6 @@ fun CreateNoteScreenPreview() {
         false,
         {},
         {},
-        Date())
+        Date()
+    )
 }
