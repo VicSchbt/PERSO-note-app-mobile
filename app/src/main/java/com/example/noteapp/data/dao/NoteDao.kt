@@ -1,6 +1,7 @@
 package com.example.noteapp.data.dao
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
@@ -25,4 +26,7 @@ interface NoteDao {
 
     @Query("UPDATE notes SET isArchived = NOT isArchived WHERE id = :noteId")
     suspend fun toggleArchive(noteId: Int)
+
+    @Delete
+    suspend fun deleteNote(note: Note)
 }

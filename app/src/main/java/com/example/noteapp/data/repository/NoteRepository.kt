@@ -27,4 +27,8 @@ class NoteRepository(private val noteDao: NoteDao) {
         noteDao.toggleArchive(noteId)
     }
 
+    suspend fun deleteNote(note: Note) {
+        noteDao.deleteNote(note)
+    }
+
 }

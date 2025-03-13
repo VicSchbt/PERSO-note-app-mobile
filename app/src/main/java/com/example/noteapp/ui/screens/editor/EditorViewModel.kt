@@ -43,4 +43,10 @@ class EditorViewModel(private val repository: NoteRepository): ViewModel() {
             }
         }
     }
+
+    fun deleteNote(note: Note) {
+        viewModelScope.launch {
+            repository.deleteNote(note)
+        }
+    }
 }

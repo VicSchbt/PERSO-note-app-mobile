@@ -1,19 +1,9 @@
 package com.example.noteapp.ui.screens.editor
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -21,18 +11,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.example.noteapp.R
-import com.example.noteapp.ui.theme.Blue500
-import com.example.noteapp.ui.theme.Neutral600
-import com.example.noteapp.ui.theme.Neutral800
-import com.example.noteapp.ui.theme.Neutral950
+import com.example.noteapp.config.ModalConfig
+import com.example.noteapp.ui.composables.ConfirmationModal
+import com.example.noteapp.ui.composables.EditForm
+import com.example.noteapp.ui.composables.EditTopBar
 
 @Composable
 fun EditorScreen(
@@ -46,6 +30,7 @@ fun EditorScreen(
     var isArchived by remember(note.value?.id) { mutableStateOf(note.value?.isArchived ?: false) }
 
     CreateNoteContent(
+        isEditMode = note.value != null,
         title = title,
         onTitleChange = { title = it },
         text = text,
@@ -56,12 +41,17 @@ fun EditorScreen(
         toggleIsArchived = {
             isArchived = !isArchived
             if (note.value != null) viewModel.toggleNoteArchive(note.value!!.id)
+        },
+        onDeleteClick = {
+            viewModel.deleteNote(note.value!!)
+            onReturnClick()
         }
     )
 }
 
 @Composable
 fun CreateNoteContent(
+    isEditMode: Boolean,
     title: String,
     onTitleChange: (String) -> Unit,
     text: String,
@@ -69,152 +59,71 @@ fun CreateNoteContent(
     onReturnClick: () -> Unit,
     onSaveClick: () -> Unit,
     isArchived: Boolean,
-    toggleIsArchived: () -> Unit
+    toggleIsArchived: () -> Unit,
+    onDeleteClick: () -> Unit
 ) {
+    var openDeleteDialog by remember { mutableStateOf(false) }
+    var openArchiveDialog by remember { mutableStateOf(false) }
+
     Column(
         modifier = Modifier.fillMaxWidth()
     ) {
         EditTopBar(
+            isEditMode = isEditMode,
             onReturnClick = { onReturnClick() },
             onCancelClick = { onReturnClick() },
             isSaveEnabled = (title != ""),
             onSaveClick = { onSaveClick() },
-            isArchived,
-            toggleIsArchived
-        )
-
-        HorizontalDivider(
-            modifier = Modifier.padding(
-                horizontal = 16.dp
-            )
-        )
-
-        OutlinedTextField(
-            value = title,
-            onValueChange = { onTitleChange(it) },
-            placeholder = { Text("Enter a title...") },
-            modifier = Modifier.fillMaxWidth(),
-            colors = OutlinedTextFieldDefaults.colors(
-                unfocusedContainerColor = Color.Transparent,
-                focusedContainerColor = Color.Transparent,
-                unfocusedPlaceholderColor = Neutral950,
-                focusedPlaceholderColor = Color.Transparent,
-                unfocusedBorderColor = Color.Transparent,
-                focusedBorderColor = Color.Transparent
-            ),
-            textStyle = TextStyle(
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold,
-                lineHeight = 28.sp
-            )
-        )
-        HorizontalDivider(
-            modifier = Modifier.padding(
-                horizontal = 16.dp
-            )
-        )
-        OutlinedTextField(
-            value = text,
-            onValueChange = { onTextChange(it) },
-            placeholder = { Text("Start typing your note here...") },
-            modifier = Modifier.fillMaxWidth(),
-            colors = OutlinedTextFieldDefaults.colors(
-                unfocusedContainerColor = Color.Transparent,
-                focusedContainerColor = Color.Transparent,
-                unfocusedPlaceholderColor = Neutral800,
-                focusedPlaceholderColor = Color.Transparent,
-                unfocusedBorderColor = Color.Transparent,
-                focusedBorderColor = Color.Transparent
-            ),
-            textStyle = TextStyle(
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Normal,
-                lineHeight = 18.sp
-            )
-        )
-    }
-}
-
-@Composable
-fun EditTopBar(
-    onReturnClick: () -> Unit,
-    onCancelClick: () -> Unit,
-    isSaveEnabled: Boolean,
-    onSaveClick: () -> Unit,
-    isArchived: Boolean,
-    toggleIsArchived: () -> Unit
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        TextButton(
-            onClick = {
-                onReturnClick()
+            isArchived = isArchived,
+            onArchiveClick = {
+                if (isArchived) {
+                    toggleIsArchived()
+                } else {
+                    openArchiveDialog = true
+                }
             },
-            colors = ButtonDefaults.textButtonColors(
-                contentColor = Neutral600
-            )
-        ) {
-            Icon(
-                painter = painterResource(R.drawable.icon_arrow_left),
-                contentDescription = ""
-            )
-            Text(
-                text = "Go Back",
-                fontSize = 14.sp,
-                lineHeight = 18.sp,
-                fontWeight = FontWeight.Normal
-            )
-        }
+            onDeleteClick = { openDeleteDialog = true }
+        )
 
-        Row {
-            IconButton(
-                onClick = {toggleIsArchived()},
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.icon_archive),
-                    contentDescription = "Archive current note",
-                    tint = if (isArchived) Blue500 else Neutral600,
-                    modifier = Modifier.size(18.dp)
-                )
-            }
-            TextButton(
-                onClick = { onCancelClick() },
-                colors = ButtonDefaults.textButtonColors(
-                    contentColor = Neutral600
-                )
-            ) {
-                Text(
-                    "Cancel",
-                    fontSize = 14.sp,
-                    lineHeight = 18.sp,
-                    fontWeight = FontWeight.Normal
-                )
-            }
-            TextButton(
-                onClick = { onSaveClick() },
-                enabled = isSaveEnabled,
-                colors = ButtonDefaults.textButtonColors(
-                    contentColor = Blue500
-                )
-            ) {
-                Text(
-                    "Save Note",
-                    fontSize = 14.sp,
-                    lineHeight = 18.sp,
-                    fontWeight = FontWeight.Normal
-                )
-            }
-        }
+        HorizontalDivider(
+            modifier = Modifier.padding(
+                horizontal = 16.dp
+            )
+        )
 
+        EditForm(title, onTitleChange, text, onTextChange)
     }
+    if (openDeleteDialog) {
+        ConfirmationModal(
+            config = ModalConfig.DELETE,
+            onDismissRequest = { openDeleteDialog = false },
+            onCancelClick = { openDeleteDialog = false },
+            onValidateClick = {
+                openDeleteDialog = false
+                onDeleteClick()
+
+            }
+        )
+    }
+    if (openArchiveDialog) {
+        ConfirmationModal(
+            config = ModalConfig.ARCHIVE,
+            onDismissRequest = { openArchiveDialog = false },
+            onCancelClick = { openArchiveDialog = false },
+            onValidateClick = {
+                openArchiveDialog = false
+                toggleIsArchived()
+            }
+        )
+    }
+
 }
 
 @Preview(showBackground = true)
 @Composable
 fun CreateNoteScreenPreview() {
     CreateNoteContent(
+        true,
         "React Performance Optimization",
         {},
         "Key performance optimization techniques:\n" +
@@ -237,5 +146,6 @@ fun CreateNoteScreenPreview() {
         {},
         {},
         false,
+        {},
         {})
 }
