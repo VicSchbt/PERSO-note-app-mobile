@@ -16,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -40,7 +41,7 @@ fun EditForm(
     OutlinedTextField(
         value = title,
         onValueChange = { onTitleChange(it) },
-        placeholder = { Text("Enter a title...") },
+        placeholder = { Text(stringResource(R.string.editor_title_placeholder)) },
         modifier = Modifier.fillMaxWidth(),
         colors = OutlinedTextFieldDefaults.colors(
             unfocusedContainerColor = Color.Transparent,
@@ -67,7 +68,7 @@ fun EditForm(
     OutlinedTextField(
         value = text,
         onValueChange = { onTextChange(it) },
-        placeholder = { Text("Start typing your note here...") },
+        placeholder = { Text(stringResource(R.string.editor_text_placeholder)) },
         modifier = Modifier.fillMaxWidth(),
         colors = OutlinedTextFieldDefaults.colors(
             unfocusedContainerColor = Color.Transparent,
@@ -87,7 +88,7 @@ fun EditForm(
 
 @Composable
 private fun LastEditedInfo(lastEdited: Date?) {
-    val dateText = lastEdited?.formatToSimpleDate() ?: "Not yet saved"
+    val dateText = lastEdited?.formatToSimpleDate() ?: stringResource(R.string.editor_last_edited_placeholder)
     val dateColor = if (lastEdited != null) Neutral700 else Neutral400
 
     Row(
@@ -108,7 +109,7 @@ private fun LastEditedInfo(lastEdited: Date?) {
                 modifier = Modifier.size(16.dp)
             )
             Text(
-                "Last edited",
+                stringResource(R.string.editor_last_edited_label),
                 color = Neutral700,
                 fontSize = 12.sp,
                 lineHeight = 14.sp

@@ -4,6 +4,9 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -24,6 +27,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -46,7 +50,6 @@ import com.example.noteapp.ui.theme.Neutral600
 import com.example.noteapp.ui.theme.NoteAppTheme
 
 class MainActivity : ComponentActivity() {
-    @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -60,85 +63,116 @@ class MainActivity : ComponentActivity() {
         setContent {
             NoteAppTheme {
                 val navController = rememberNavController()
-                Scaffold(modifier = Modifier.fillMaxSize(),
-                    topBar = {
-                        TopAppBar(
-                            title = {
-                                Icon(
-                                    painter = painterResource(R.drawable.logo),
-                                    contentDescription = ""
-                                )
-                            },
-                            colors = TopAppBarDefaults.topAppBarColors(
-                                containerColor = Neutral100
-                            )
-                        )
-                    },
-                    bottomBar = { NavigationBottomBar(
-                        goToAllNotes = {navController.navigateSingleTopTo(AllNotes.route)},
-                        goToSearch = {},
-                        goToArchives = {navController.navigateSingleTopTo(ArchivedNotes.route)},
-                        goToTag = {},
-                        goToSettings = {}
-                    ) },
-                    floatingActionButton = {
-                        FloatingActionButton(
-                            onClick = { navController.navigateSingleTopTo(CreateNote.route) },
-                            containerColor = Blue500,
-                            contentColor = Neutral0
-                        ) {
-                            Icon(
-                                painter = painterResource(R.drawable.icon_plus),
-                                contentDescription = "create a new note"
-                            )
-                        }
-                    }
-                ) { innerPadding ->
-                    NavHost(
-                        navController = navController,
-                        startDestination = AllNotes.route,
-                        modifier = Modifier.padding(innerPadding),
-                    ) {
-                        composable(route = AllNotes.route) {
-                            AllNotesScreen(
-                                allNotesViewModel,
-                                onNoteClick = { noteId: Int ->  navController.navigateSingleTopTo("${EditNote.route}/$noteId")}
-                            )
-                        }
-                        composable(route = CreateNote.route) {
-                            LaunchedEffect(null) {
-                                editorViewModel.resetNote()
-                            }
-
-                            EditorScreen(
-                                editorViewModel,
-                                onReturnClick = { navController.popBackStack() }
-                            )
-                        }
-                        composable(
-                            route = "${EditNote.route}/{${EditNote.noteIdArg}}",
-                            arguments = EditNote.arguments
-                        ) {entry ->
-                            val noteId = entry.arguments?.getInt(EditNote.noteIdArg) ?: return@composable
-                            LaunchedEffect(noteId) {
-                                editorViewModel.loadNote(noteId)
-                            }
-
-                            EditorScreen(
-                                editorViewModel,
-                                onReturnClick = { navController.popBackStack() }
-                            )
-                        }
-                        composable(route = ArchivedNotes.route) {
-                            ArchivesScreen(
-                                archivesViewModel,
-                                onNoteClick = { noteId: Int ->  navController.navigateSingleTopTo("${EditNote.route}/$noteId")}
-                            )
-                        }
-                    }
-
-                }
+                NoteScaffold(navController, allNotesViewModel, editorViewModel, archivesViewModel)
             }
+        }
+    }
+}
+
+@Composable
+@OptIn(ExperimentalMaterial3Api::class)
+private fun NoteScaffold(
+    navController: NavHostController,
+    allNotesViewModel: AllNotesScreenViewModel,
+    editorViewModel: EditorViewModel,
+    archivesViewModel: ArchivesViewModel
+) {
+    Scaffold(modifier = Modifier.fillMaxSize(),
+        topBar = {
+            TopAppBar(
+                title = {
+                    Icon(
+                        painter = painterResource(R.drawable.logo),
+                        contentDescription = ""
+                    )
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Neutral100
+                )
+            )
+        },
+        bottomBar = {
+            NavigationBottomBar(
+                goToAllNotes = { navController.navigateSingleTopTo(NoteDestination.AllNotes.route) },
+                goToSearch = {},
+                goToArchives = { navController.navigateSingleTopTo(NoteDestination.ArchivedNotes.route) },
+                goToTag = {},
+                goToSettings = {}
+            )
+        },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = { navController.navigateSingleTopTo(NoteDestination.CreateNote.route) },
+                containerColor = Blue500,
+                contentColor = Neutral0
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.icon_plus),
+                    contentDescription = stringResource(R.string.nav_new_note_content_descr)
+                )
+            }
+        }
+    ) { innerPadding ->
+        NoteNavGraph(
+            navController,
+            allNotesViewModel,
+            editorViewModel,
+            archivesViewModel,
+            modifier = Modifier.padding(innerPadding)
+        )
+
+    }
+}
+
+@Composable
+private fun NoteNavGraph(
+    navController: NavHostController,
+    allNotesViewModel: AllNotesScreenViewModel,
+    editorViewModel: EditorViewModel,
+    archivesViewModel: ArchivesViewModel,
+    modifier: Modifier
+) {
+    NavHost(
+        navController = navController,
+        startDestination = NoteDestination.AllNotes.route,
+        modifier = modifier,
+    ) {
+        composable(route = NoteDestination.AllNotes.route) {
+            AllNotesScreen(
+                allNotesViewModel,
+                onNoteClick = { noteId: Int -> navController.navigateSingleTopTo("${NoteDestination.EditNote.route}/$noteId") }
+            )
+        }
+        composable(route = NoteDestination.CreateNote.route) {
+            LaunchedEffect(null) {
+                editorViewModel.resetNote()
+            }
+
+            EditorScreen(
+                editorViewModel,
+                onReturnClick = { navController.popBackStack() }
+            )
+        }
+        composable(
+            route = "${NoteDestination.EditNote.route}/{${NoteDestination.EditNote.noteIdArg}}",
+            arguments = NoteDestination.EditNote.arguments
+        ) { entry ->
+            val noteId =
+                entry.arguments?.getInt(NoteDestination.EditNote.noteIdArg) ?: return@composable
+            LaunchedEffect(noteId) {
+                editorViewModel.loadNote(noteId)
+            }
+
+            EditorScreen(
+                editorViewModel,
+                onReturnClick = { navController.popBackStack() }
+            )
+        }
+        composable(route = NoteDestination.ArchivedNotes.route) {
+            ArchivesScreen(
+                archivesViewModel,
+                onNoteClick = { noteId: Int -> navController.navigateSingleTopTo("${NoteDestination.EditNote.route}/$noteId") }
+            )
         }
     }
 }
@@ -154,11 +188,34 @@ fun NavigationBottomBar(
     var activeItemId by remember { mutableStateOf("notes") }
 
     val navItems = listOf(
-        NavigationItem("notes", R.drawable.icon_home, "Go to all notes", goToAllNotes),
-        NavigationItem("search", R.drawable.icon_search, "Go to search", goToSearch),
-        NavigationItem("archives", R.drawable.icon_archive, "Go to archives", goToArchives),
-        NavigationItem("tag", R.drawable.icon_tag, "Go to tags", goToTag),
-        NavigationItem("settings", R.drawable.icon_settings, "Go to settings", goToSettings)
+        NavigationItem(
+            NoteDestination.AllNotes.route,
+            R.drawable.icon_home,
+            stringResource(R.string.nav_all_notes_content_descr),
+            goToAllNotes
+        ),
+        NavigationItem(
+            NoteDestination.SearchNote.route,
+            R.drawable.icon_search,
+            stringResource(R.string.nav_search_content_descr),
+            goToSearch
+        ),
+        NavigationItem(
+            NoteDestination.ArchivedNotes.route,
+            R.drawable.icon_archive,
+            stringResource(R.string.nav_archives_content_descr),
+            goToArchives
+        ),
+        NavigationItem(
+            NoteDestination.TagNote.route, R.drawable.icon_tag,
+            stringResource(R.string.nav_tags_content_descr), goToTag
+        ),
+        NavigationItem(
+            NoteDestination.Settings.route,
+            R.drawable.icon_settings,
+            stringResource(R.string.nav_settings_content_descr),
+            goToSettings
+        )
     )
 
     BottomAppBar(

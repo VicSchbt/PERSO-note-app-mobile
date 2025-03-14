@@ -3,32 +3,25 @@ package com.example.noteapp
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
 
-/**
- * Contract for information needed on every Note navigation destination
- */
-interface NoteDestinations {
-    val route: String
-}
+sealed class NoteDestination(val route: String) {
 
-/**
- * Note App navigation destination
- */
-object AllNotes: NoteDestinations {
-    override val route = "all"
-}
+    data object AllNotes : NoteDestination("notes")
 
-object CreateNote: NoteDestinations {
-    override val route = "create"
-}
+    data object CreateNote : NoteDestination("create")
 
-object EditNote: NoteDestinations {
-    override val route = "edit"
-    const val noteIdArg = "note_id"
-    val arguments = listOf(
-        navArgument(noteIdArg) { type = NavType.IntType }
-    )
-}
+    data object EditNote : NoteDestination("edit") {
+        const val noteIdArg = "note_id"
+        val arguments = listOf(
+            navArgument(noteIdArg) { type = NavType.IntType }
+        )
 
-object ArchivedNotes: NoteDestinations {
-    override val route = "archives"
+    }
+
+    data object SearchNote : NoteDestination("search")
+
+    data object TagNote : NoteDestination("tag")
+
+    data object Settings : NoteDestination("settings")
+
+    data object ArchivedNotes : NoteDestination("archives")
 }

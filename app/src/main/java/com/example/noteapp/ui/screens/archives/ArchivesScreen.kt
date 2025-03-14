@@ -12,10 +12,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.noteapp.R
 import com.example.noteapp.data.model.Note
 import com.example.noteapp.ui.composables.NoteList
 import com.example.noteapp.ui.composables.ScreenTitle
@@ -41,7 +43,7 @@ fun ArchivesScreenContent(
         modifier = Modifier.padding(vertical = 20.dp, horizontal = 16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        ScreenTitle("Archived Notes")
+        ScreenTitle(stringResource(R.string.archive_title))
         if (notes.isNotEmpty()) {
             NoteList(notes = notes, onNoteClick = { onNoteClick(it) })
         } else {
@@ -53,7 +55,7 @@ fun ArchivesScreenContent(
 @Composable
 private fun EmptyState() {
     Text(
-        "All your archived notes are stored here. You can restore or delete them anytime.",
+        stringResource(R.string.archive_empty_state_1),
         fontSize = 14.sp,
         lineHeight = 16.sp,
         fontWeight = FontWeight.Normal,
@@ -70,7 +72,7 @@ private fun EmptyState() {
             .padding(8.dp)
     ) {
         Text(
-            "No notes have been archived yet. Move notes here for safekeeping, or create a new note.",
+            stringResource(R.string.archive_empty_state_2),
             fontSize = 14.sp,
             lineHeight = 16.sp,
             fontWeight = FontWeight.Normal,

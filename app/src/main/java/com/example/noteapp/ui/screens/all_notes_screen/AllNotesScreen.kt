@@ -12,10 +12,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.noteapp.R
 import com.example.noteapp.data.model.Note
 import com.example.noteapp.ui.composables.NoteList
 import com.example.noteapp.ui.composables.ScreenTitle
@@ -41,7 +43,9 @@ fun AllNotesScreenContent(
         modifier = Modifier.padding(vertical = 20.dp, horizontal = 16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        ScreenTitle("All notes")
+        ScreenTitle(
+            stringResource(R.string.all_notes_title)
+        )
         if (notes.isNotEmpty()) {
             NoteList(notes = notes, onNoteClick = { onNoteClick(it) })
         } else {
@@ -64,7 +68,7 @@ private fun EmptyState() {
             .padding(8.dp)
     ) {
         Text(
-            "You don’t have any notes yet. Start a new note to capture your thoughts and ideas.",
+            stringResource(R.string.all_notes_empty_state),
             fontSize = 14.sp,
             lineHeight = 16.sp,
             fontWeight = FontWeight.Normal,

@@ -22,27 +22,11 @@ import com.example.noteapp.utils.formatToSimpleDate
 @Composable
 fun NoteList(notes: List<Note>, onNoteClick: (Int) -> Unit) {
     LazyColumn {
-        itemsIndexed(notes) { index, note ->
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { onNoteClick(note.id) }
-                    .padding(8.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                Text(
-                    text = note.title,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
-                    text = note.lastEdited.formatToSimpleDate(),
-                    color = Neutral700,
-                    fontSize = 12.sp,
-                    lineHeight = 14.sp,
-                    fontWeight = FontWeight.Normal
-                )
-            }
+        itemsIndexed(
+            notes,
+            key = { _, note -> note.id}
+        ) { index, note ->
+            NoteItem(onNoteClick, note)
 
             if (index != notes.size - 1) {
                 HorizontalDivider(
@@ -50,5 +34,32 @@ fun NoteList(notes: List<Note>, onNoteClick: (Int) -> Unit) {
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun NoteItem(
+    onNoteClick: (Int) -> Unit,
+    note: Note
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onNoteClick(note.id) }
+            .padding(8.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        Text(
+            text = note.title,
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Bold
+        )
+        Text(
+            text = note.lastEdited.formatToSimpleDate(),
+            color = Neutral700,
+            fontSize = 12.sp,
+            lineHeight = 14.sp,
+            fontWeight = FontWeight.Normal
+        )
     }
 }

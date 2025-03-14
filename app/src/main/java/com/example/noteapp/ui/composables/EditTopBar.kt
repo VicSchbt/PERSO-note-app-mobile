@@ -12,6 +12,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -51,7 +52,7 @@ fun EditTopBar(
                 )
             ) {
                 Text(
-                    "Cancel",
+                    stringResource(R.string.cancel),
                     fontSize = 14.sp,
                     lineHeight = 18.sp,
                     fontWeight = FontWeight.Normal
@@ -65,7 +66,7 @@ fun EditTopBar(
                 )
             ) {
                 Text(
-                    "Save Note",
+                    stringResource(R.string.editor_save_note),
                     fontSize = 14.sp,
                     lineHeight = 18.sp,
                     fontWeight = FontWeight.Normal
@@ -87,7 +88,7 @@ private fun EditActions(
     ) {
         Icon(
             painter = painterResource(id = R.drawable.icon_delete),
-            contentDescription = "Delete current note",
+            contentDescription = stringResource(R.string.editor_delete_content_descr),
             tint = Neutral600,
             modifier = Modifier.size(18.dp)
         )
@@ -97,7 +98,7 @@ private fun EditActions(
     ) {
         Icon(
             painter = painterResource(id = R.drawable.icon_archive),
-            contentDescription = "Archive current note",
+            contentDescription = stringResource(R.string.editor_archive_content_descr),
             tint = if (isArchived) Blue500 else Neutral600,
             modifier = Modifier.size(18.dp)
         )
@@ -119,7 +120,7 @@ private fun GoBackButton(onReturnClick: () -> Unit) {
             contentDescription = ""
         )
         Text(
-            text = "Go Back",
+            text = stringResource(R.string.go_back),
             fontSize = 14.sp,
             lineHeight = 18.sp,
             fontWeight = FontWeight.Normal
