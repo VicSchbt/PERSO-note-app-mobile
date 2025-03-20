@@ -16,6 +16,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.noteapp.config.ModalConfig
+import com.example.noteapp.data.model.Tag
 import com.example.noteapp.ui.composables.ConfirmationModal
 import com.example.noteapp.ui.composables.EditForm
 import com.example.noteapp.ui.composables.EditTopBar
@@ -32,6 +33,7 @@ fun EditorScreen(
     var text by rememberSaveable(noteState.value?.id) { mutableStateOf(noteState.value?.text.orEmpty()) }
     val isArchived = noteState.value?.isArchived ?: false
     val lastEdited = noteState.value?.lastEdited
+    val tags = noteState.value?.tags ?: emptyList()
 
     CreateNoteContent(
         isEditMode = noteState.value != null,
@@ -39,6 +41,10 @@ fun EditorScreen(
         onTitleChange = { title = it },
         text = text,
         onTextChange = { text = it },
+        tags = tags,
+        onTagsChange = { newTags ->
+            viewModel.replaceTagsForCurrentNote(newTags)
+        },
         onReturnClick = { onReturnClick() },
         onSaveClick = { viewModel.saveNote(title, text, isArchived) },
         isArchived,
@@ -60,6 +66,8 @@ fun CreateNoteContent(
     onTitleChange: (String) -> Unit,
     text: String,
     onTextChange: (String) -> Unit,
+    tags: List<Tag>,
+    onTagsChange: (List<Tag>) -> Unit,
     onReturnClick: () -> Unit,
     onSaveClick: () -> Unit,
     isArchived: Boolean,
@@ -96,7 +104,7 @@ fun CreateNoteContent(
             )
         )
 
-        EditForm(title, onTitleChange, text, onTextChange, lastEdited)
+        EditForm(title, onTitleChange, text, onTextChange, tags, onTagsChange, lastEdited)
     }
     if (openDeleteDialog) {
         ConfirmationModal(
@@ -147,6 +155,8 @@ fun CreateNoteScreenPreview() {
                 "- Implement infinite scrolling\n" +
                 "\n" +
                 "TODO: Benchmark current application and identify bottlenecks",
+        {},
+        emptyList(),
         {},
         {},
         {},

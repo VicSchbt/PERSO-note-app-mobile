@@ -33,4 +33,6 @@
     <string name="editor_save_note">Save Note</string>
     <string name="editor_delete_content_descr">Delete current note</string>
     <string name="editor_archive_content_descr">Archive current note</string>
+    <string name="editor_tags_label">Tags</string>
+    <string name="editor_tags_placeholder">Add tags separated by commas (e.g. Work, Planning)</string>
 </resources>

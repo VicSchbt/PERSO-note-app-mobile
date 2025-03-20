@@ -15,6 +15,8 @@ class EditorViewModel(private val repository: NoteRepository): ViewModel() {
     private val _note = MutableStateFlow<Note?>(null)
     val note: StateFlow<Note?> = _note.asStateFlow()
 
+    var tagsListForNewNote: List<Tag> = emptyList()
+
     /**
      * Save or update a note.
      * - If it's a new note -> creates it
@@ -96,10 +98,14 @@ class EditorViewModel(private val repository: NoteRepository): ViewModel() {
      * Replace all tags for the current note.
      */
     fun replaceTagsForCurrentNote(newTags: List<Tag>) {
-        val currentNote = _note.value ?: return
+        val currentNote = _note.value
 
-        viewModelScope.launch {
-            repository.replaceNoteTags(currentNote.id, newTags)
+        if (currentNote == null) {
+            tagsListForNewNote = newTags
+        } else {
+            viewModelScope.launch {
+                repository.replaceNoteTags(currentNote.id, newTags)
+            }
         }
     }
 
