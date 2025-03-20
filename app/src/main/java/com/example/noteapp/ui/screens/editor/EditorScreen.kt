@@ -9,10 +9,12 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.noteapp.config.ModalConfig
 import com.example.noteapp.ui.composables.ConfirmationModal
 import com.example.noteapp.ui.composables.EditForm
@@ -24,15 +26,15 @@ fun EditorScreen(
     viewModel: EditorViewModel,
     onReturnClick: () -> Unit
 ) {
-    val note = viewModel.note.collectAsState()
+    val noteState = viewModel.note.collectAsStateWithLifecycle()
 
-    var title by remember(note.value?.id) { mutableStateOf(note.value?.title ?: "") }
-    var text by remember(note.value?.id) { mutableStateOf(note.value?.text ?: "") }
-    var isArchived by remember(note.value?.id) { mutableStateOf(note.value?.isArchived ?: false) }
-    val lastEdited by remember(note.value?.id) { mutableStateOf(note.value?.lastEdited) }
+    var title by rememberSaveable(noteState.value?.id) { mutableStateOf(noteState.value?.title.orEmpty()) }
+    var text by rememberSaveable(noteState.value?.id) { mutableStateOf(noteState.value?.text.orEmpty()) }
+    val isArchived = noteState.value?.isArchived ?: false
+    val lastEdited = noteState.value?.lastEdited
 
     CreateNoteContent(
-        isEditMode = note.value != null,
+        isEditMode = noteState.value != null,
         title = title,
         onTitleChange = { title = it },
         text = text,
@@ -41,11 +43,10 @@ fun EditorScreen(
         onSaveClick = { viewModel.saveNote(title, text, isArchived) },
         isArchived,
         toggleIsArchived = {
-            isArchived = !isArchived
-            if (note.value != null) viewModel.toggleNoteArchive(note.value!!.id)
+            noteState.value?.let { viewModel.toggleNoteArchive(it.id) }
         },
         onDeleteClick = {
-            viewModel.deleteNote(note.value!!)
+            viewModel.deleteCurrentNote()
             onReturnClick()
         },
         lastEdited

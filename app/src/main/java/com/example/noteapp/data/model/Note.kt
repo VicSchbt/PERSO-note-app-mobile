@@ -1,16 +1,20 @@
 package com.example.noteapp.data.model
 
-import androidx.room.ColumnInfo
-import androidx.room.Entity
-import androidx.room.PrimaryKey
+import com.example.noteapp.data.model.entities.NoteEntity
 import java.util.Date
 
-@Entity(tableName = "notes")
 data class Note(
-    @PrimaryKey(autoGenerate = true)
-    @ColumnInfo("id") val id: Int = 0,
-    @ColumnInfo("title") val title: String,
-    @ColumnInfo("text") val text: String,
-    @ColumnInfo("isArchived", defaultValue = "0") val isArchived: Boolean = false,
-    @ColumnInfo("lastEdited") val lastEdited: Date
-)
+    val id: Int = 0,
+    val title: String,
+    val text: String,
+    val isArchived: Boolean,
+    val lastEdited: Date,
+    val tags: List<Tag> = emptyList() // Always present!
+) {
+    fun toEntity(): NoteEntity {
+        return NoteEntity(
+            id, title, text, isArchived, lastEdited
+        )
+    }
+}
+
